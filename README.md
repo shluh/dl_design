@@ -32,14 +32,13 @@ $ yum update <br /><br />
 ##### JDK8
 [install on all machines]<br />
 $ cd /opt/ <br />
-$ wget --continue --no-check-certificate -O jdk-8-linux-x64.tar.gz --header Cookie: oraclelicense=a http://download.oracle.com/otn-pub/java/jdk/8-b132/jdk-8-linux-x64.tar.gz <br />
-$ tar xzf jdk-8-linux-x64.tar.gz <br />
-$ mv jdk-8/ jdk  <br />
-$ java -version 
-$ cd ~
-$ vi .bash_profile
+$ wget --no-cookies --no-check-certificate --header "Cookie: oraclelicense=accept-securebackup-cookie" https://javadl.oracle.com/webapps/download/GetFile/1.8.0_301-b09/d3c52aa6bfa54d3ca74e617f18309292/linux-i586/jdk-8u301-linux-x64.tar.gz <br />
+
+unzip and rename to <jdk>
 <br />
-Java JDK 1.8 
+ADD in .bash_profile
+
+#Java JDK 1.8 
 export JAVA_HOME=/opt/jdk <br />
 export JRE_HOME=/opt/jdk/jre <br />
 export PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin <br />
@@ -50,9 +49,50 @@ print java version and checks if returns correctly
 
 ##### Generating SSH
 
+Create haddop user
+  
+useradd -m hadoop <br />
+passwd hadoop<br />
 
+SSH setup<br />
+vi /etc/ssh/sshd_config<br />
+    
+uncomment lines bellow<br />
+Port 22<br />
+#AddressFamily any<br />
+ListenAddress 0.0.0.0<br />
+ListenAddress ::<br />
+PubkeyAuthentication yes<br />
+  
+$systemctl restart sshd.service<br /><br />
 
+Create SSH security key (only on node master) <br />
 
+$ su hadoop<br />
+$ cd ~<br />
+$ ssh-keygen<br /><br />
+
+Copy the key<br />
+$ ssh-copy-id -i ~/.ssh/hdp-key.pub hadoop@hdpdatanode1<br />
+$ ssh-copy-id -i ~/.ssh/hdp-key.pub hadoop@hdpdatanode2<br />
+$ ssh-copy-id -i ~/.ssh/hdp-key.pub hadoop@hdpmaster<br />
+  
+##### Hadoop setup 3.x
+$ cd /opt<br />
+$ wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.1/hadoop-3.3.1.tar.gz<br />
+$ tar -xvf hadoop-3.3.1.tar.gz<br />
+$ mv hadoop-3.3.1.tar.gz hadoop<br />
+$ chown -R hadoop:hadoop hadoop/<br />
+ 
+SET env vars at .bash_profile<br />
+# Java JDK 1.8<br />
+export JAVA_HOME=/opt/jdk<br />
+export JRE_HOME=/opt/jdk/jre<br />
+export PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin<br /><br />
+
+# Hadoop<br />
+export HADOOP_HOME=/opt/hadoop<br />
+export PATH=$PATH:$HADOOP_HOME/bin<br />
 
   
   
